@@ -1,14 +1,17 @@
+
 # FIDO2/WebAuthn Implementation Guide
 
-## Tổng Quan FIDO2/WebAuthn
+## Tổng Quan Kiến Trúc FIDO2/WebAuthn (theo mô hình mới)
 
-FIDO2 bao gồm 2 components chính:
-1. **WebAuthn** (Web Authentication API) - Browser-side API
-2. **CTAP2** (Client-to-Authenticator Protocol) - Communication giữa browser và authenticator
+FIDO2/WebAuthn được triển khai theo kiến trúc phân tầng hiện đại:
+- **Application Layer (APP Layer):** Xử lý logic nghiệp vụ xác thực (FIDO2/WebAuthn, OTP, PIV, ...).
+- **Platform Layer:** Cung cấp các thành phần nền tảng như Crypto, Storage, Communication (gồm Protocol Layer: CTAP2, ISO7816, ... và Transport Layer: FIDO HID, CCID, ...).
+- **Hardware Abstraction Layer (HAL):** API thống nhất cho phần cứng (USB HID HAL, Crypto HAL, Storage HAL).
 
-## 1. CTAP2 Protocol Implementation
 
-### 1.1. CTAP2 Commands (Cần implement cho prototype)
+## 1. CTAP2 Protocol Implementation (Platform Layer - Protocol)
+
+### 1.1. CTAP2 Commands (Protocol Layer)
 
 #### Mandatory Commands:
 ```c
@@ -360,11 +363,12 @@ typedef struct {
 #define RESIDENT_CRED_SIZE            sizeof(resident_credential_t)
 ```
 
-## 5. USB HID Transport
 
-### 5.1. FIDO HID Protocol
+## 5. USB HID Transport (Platform Layer - Transport)
+
+### 5.1. FIDO HID Protocol (Transport Layer)
 ```c
-// HID Report Descriptor for FIDO
+// HID Report Descriptor for FIDO HID (chuẩn giao tiếp vật lý)
 static const uint8_t fido_hid_report_descriptor[] = {
     0x06, 0xD0, 0xF1,    // Usage Page (FIDO Alliance)
     0x09, 0x01,          // Usage (U2F HID Authenticator Device)
@@ -389,7 +393,7 @@ static const uint8_t fido_hid_report_descriptor[] = {
 #define FIDO_HID_MSG_CMD        0x83
 ```
 
-### 5.2. Packet Handling
+### 5.2. Packet Handling (Transport Layer)
 ```c
 typedef struct {
     uint32_t channel_id;
@@ -439,15 +443,19 @@ navigator.credentials.create({
 
 ## Kết Luận
 
-Implementation FIDO2/WebAuthn yêu cầu:
-1. **CTAP2 protocol** implementation đầy đủ
-2. **Cryptographic operations** chuẩn (ECDSA P-256)
-3. **USB HID transport** tuân thủ FIDO spec
-4. **Secure storage** cho keys và credentials
-5. **User interaction** handling (button, PIN)
 
-Prototype nên focus vào core functionality trước:
+## Kết luận
+
+Triển khai FIDO2/WebAuthn theo kiến trúc phân tầng:
+1. **Application Layer:** Xử lý logic xác thực (MakeCredential, GetAssertion, ...)
+2. **Platform Layer:**
+    - **Protocol Layer:** CTAP2, ISO7816, Yubico OTP, ...
+    - **Transport Layer:** FIDO HID, CCID, BLE, ...
+    - **Crypto/Storage:** Sinh key, ký số, lưu trữ an toàn
+3. **HAL:** API phần cứng (USB HID HAL, Crypto HAL, Storage HAL)
+
+Prototype nên tập trung vào core functionality:
 - MakeCredential & GetAssertion
-- Basic attestation  
+- Basic attestation
 - User presence detection
-- USB HID communication
+- FIDO HID communication

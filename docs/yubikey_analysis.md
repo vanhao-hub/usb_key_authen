@@ -124,86 +124,68 @@ YubiKey 5 series là một hardware security key hỗ trợ nhiều protocol aut
    └─────────────┘
 ```
 
-### 2.2. Software Architecture
+
+### 2.2. Software Architecture (Kiến trúc phần mềm)
 
 ```
-┌─────────────────────────────────────────┐
-│           Application Layer             │ ← Tầng ứng dụng (cao nhất)
-│ ┌─────────┐ ┌─────────┐ ┌─────────────┐ │
-│ │ FIDO2   │ │   PIV   │ │    OTP      │ │
-│ │WebAuthn │ │         │ │             │ │
-│ └─────────┘ └─────────┘ └─────────────┘ │
-├─────────────────────────────────────────┤
-│          Protocol Layer                 │ ← Tầng giao thức
-│ ┌─────────┐ ┌─────────┐ ┌─────────────┐ │
-│ │  CTAP2  │ │ISO 7816 │ │   Yubico    │ │
-│ │         │ │         │ │    OTP      │ │
-│ └─────────┘ └─────────┘ └─────────────┘ │
-├─────────────────────────────────────────┤
-│         Transport Layer                 │ ← Tầng vận chuyển
-│ ┌─────────────────────────────────────┐ │
-│ │            USB Interface            │ │
-│ │     ┌─────────┐ ┌─────────────┐     │ │
-│ │     │FIDO HID │ │  CCID       │     │ │
-│ │     └─────────┘ └─────────────┘     │ │
-│ └─────────────────────────────────────┘ │
-├─────────────────────────────────────────┤
-│         Hardware Abstraction           │ ← Tầng trừu tượng phần cứng
-│ ┌─────────┐ ┌─────────┐ ┌─────────────┐ │
-│ │  USB    │ │ Crypto  │ │   Storage   │ │
-│ │  HAL    │ │  HAL    │ │    HAL      │ │
-│ └─────────┘ └─────────┘ └─────────────┘ │
-├─────────────────────────────────────────┤
-│              Hardware                   │ ← Phần cứng thực tế
-│        MCU + Crypto + Storage           │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│           Application Layer (APP)           │
+│ ┌─────────┐ ┌─────────┐ ┌─────────────┐     │
+│ │ FIDO2   │ │   PIV   │ │    OTP      │     │
+│ │WebAuthn │ │         │ │             │     │
+│ └─────────┘ └─────────┘ └─────────────┘     │
+├─────────────────────────────────────────────┤
+│             Platform Layer                  │
+│ ┌─────────────┬─────────────┬────────────┐ │
+│ │  Crypto     │ Communication│  Storage   │ │
+│ │  Engine     │             │            │ │
+│ └─────────────┴─────────────┴────────────┘ │
+│         ┌─────────────────────────────┐     │
+│         │   Communication Component   │     │
+│         │ ┌─────────────┬───────────┐ │     │
+│         │ │ Protocol    │ Transport │ │     │
+│         │ │ Layer       │ Layer     │ │     │
+│         │ │ (CTAP2,     │ (FIDO HID,│ │     │
+│         │ │ ISO7816,    │  CCID,    │ │     │
+│         │ │ Yubico OTP) │  BLE, NFC)│ │     │
+│         │ └─────────────┴───────────┘ │     │
+│         └─────────────────────────────┘     │
+├─────────────────────────────────────────────┤
+│         Hardware Abstraction Layer (HAL)    │
+│ ┌─────────────┬─────────────┬────────────┐ │
+│ │ USB HID HAL │ Crypto HAL  │ Storage HAL│ │
+│ └─────────────┴─────────────┴────────────┘ │
+├─────────────────────────────────────────────┤
+│                Hardware                    │
+│        MCU + Crypto + Storage              │
+└─────────────────────────────────────────────┘
 ```
 
-#### Mô tả chi tiết từng tầng:
 
-**🔵 Application Layer (Tầng Ứng Dụng)**
-- **Chức năng**: Xử lý logic nghiệp vụ cụ thể cho từng loại xác thực
-- **Input**: Yêu cầu từ Protocol Layer (ví dụ: "tạo credential mới")
-- **Output**: Kết quả xử lý (ví dụ: "credential đã tạo thành công")
-- **Vai trò**: 
-  - FIDO2 Module: Xử lý đăng nhập passwordless cho websites
-  - PIV Module: Xử lý xác thực doanh nghiệp (Windows login, email signing)
-  - OTP Module: Tạo mã OTP như Google Authenticator
+#### Mô tả chi tiết từng tầng kiến trúc mới:
 
-**🟡 Protocol Layer (Tầng Giao Thức)**
-- **Chức năng**: Chuyển đổi giữa format của từng chuẩn và Application Layer
-- **Input**: Raw data từ Transport Layer (bytes thô)
-- **Output**: Structured data cho Application Layer (dữ liệu có cấu trúc)
-- **Vai trò**:
-  - CTAP2: Phiên dịch giao thức FIDO2 (parse commands, build responses)
-  - ISO 7816: Xử lý giao thức smart card cho PIV
-  - Yubico OTP: Xử lý format OTP riêng của Yubico
+**🔵 Application Layer (APP Layer)**
+- Chứa logic nghiệp vụ cho các chức năng xác thực: FIDO2/WebAuthn, OTP, PIV, v.v.
+- Không phụ thuộc vào phần cứng hay giao thức truyền thông.
+- Ví dụ: Khi người dùng yêu cầu tạo credential mới, tầng này sẽ xử lý và gọi xuống Platform Layer.
 
-**🟢 Transport Layer (Tầng Vận Chuyển)**
-- **Chức năng**: Giao tiếp với máy tính host qua USB
-- **Input**: Data từ Protocol Layer cần gửi đi
-- **Output**: Data nhận được từ máy tính host
-- **Vai trò**:
-  - USB HID (FIDO): Giả lập thiết bị input (như keyboard) để giao tiếp FIDO
-  - USB CCID: Giả lập smart card reader cho PIV
-  - *HID = Human Interface Device (thiết bị giao tiếp người dùng)*
-  - *CCID = Chip Card Interface Device (thiết bị giao tiếp thẻ chip)*
+**🟡 Platform Layer**
+- Chứa các thành phần nền tảng: Crypto Engine, Communication, Storage.
+- **Crypto**: Thực hiện các thuật toán mã hóa, tạo chữ ký số, sinh số ngẫu nhiên.
+- **Storage**: Quản lý lưu trữ keys, credentials, settings.
+- **Communication**: Chia thành hai lớp nhỏ:
+  - **Protocol Layer**: Xử lý các giao thức xác thực (CTAP2 cho FIDO2, ISO7816 cho PIV, Yubico OTP cho OTP).
+  - **Transport Layer**: Xử lý phương thức truyền tải vật lý (FIDO HID, CCID, BLE, NFC).
+- Ví dụ: Khi APP Layer yêu cầu tạo credential, Platform Layer sẽ dùng Crypto để tạo key, Storage để lưu, Communication để truyền dữ liệu ra ngoài.
 
-**🟠 Hardware Abstraction Layer (HAL - Tầng Trừu Tượng Phần Cứng)**
-- **Chức năng**: Che giấu sự khác biệt giữa các loại MCU khác nhau
-- **Input**: Yêu cầu từ tầng trên (ví dụ: "gửi data qua USB")
-- **Output**: Kết quả thực hiện (ví dụ: "data đã gửi thành công")
-- **Vai trò**:
-  - USB HAL: Cung cấp API thống nhất cho USB (dù STM32, ESP32, etc.)
-  - Crypto HAL: API thống nhất cho mã hóa (hardware hoặc software)
-  - Storage HAL: API thống nhất cho lưu trữ (Flash, EEPROM, etc.)
+**🟠 Hardware Abstraction Layer (HAL)**
+- Cung cấp API thống nhất cho phần cứng: USB HID HAL, Crypto HAL, Storage HAL.
+- Giúp code không phụ thuộc loại MCU/chip, dễ mở rộng sang phần cứng mới.
+- Ví dụ: Nếu đổi từ STM32 sang ESP32, chỉ cần thay đổi HAL mà không ảnh hưởng logic tầng trên.
 
-**🔴 Hardware Layer (Tầng Phần Cứng)**
-- **Chức năng**: Phần cứng thực tế của thiết bị
-- **Components**:
-  - MCU: Vi xử lý chính (STM32, ESP32, etc.)
-  - Crypto: Chip mã hóa chuyên dụng hoặc crypto engine trong MCU
-  - Storage: Flash memory để lưu keys và settings
+**🔴 Hardware Layer**
+- Phần cứng thực tế của thiết bị: MCU, Crypto engine, Flash/EEPROM.
+
 
 #### Luồng dữ liệu ví dụ (FIDO2 Login):
 ```
