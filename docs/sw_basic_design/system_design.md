@@ -1,4 +1,3 @@
-
 ## 1. Layered Architecture (Kiến trúc phân tầng mới)
 
 ```
@@ -41,11 +40,39 @@
 
 ### 2.1. Hardware Abstraction Layer (HAL)
 HAL cung cấp API thống nhất cho phần cứng, bao gồm:
-- **USB HID HAL**: Giao tiếp USB HID cho transport layer
-- **Crypto HAL**: Các thao tác mã hóa (key generation, signing, hashing, RNG)
-- **Storage HAL**: Lưu trữ persistent (Flash, EEPROM)
 
-Chi tiết API: xem `api_specification.md`
+#### 2.1.1. USB HID HAL
+USB HID HAL cung cấp interface trừu tượng cho giao tiếp USB HID, hỗ trợ FIDO2/WebAuthn qua giao thức CTAP2.
+
+**Chức năng chính:**
+- **Device Configuration**: Cấu hình USB HID device descriptors, vendor/product IDs, và HID report descriptors
+- **Data Transfer**: Gửi và nhận HID reports với host system thông qua endpoint management
+- **Event Management**: Xử lý USB events (connect, disconnect, suspend, resume) thông qua callback mechanism
+- **Feature Reports**: Hỗ trợ HID feature reports cho device configuration
+- **Status Monitoring**: Theo dõi trạng thái USB connection và device state
+- **Power Management**: Hỗ trợ USB suspend/resume để tối ưu hóa năng lượng
+
+#### 2.1.2. Storage HAL
+
+Storage HAL cung cấp interface trừu tượng để tương tác với các thiết bị lưu trữ vật lý (flash, EEPROM, secure element) thông qua các raw storage operations.
+
+**Chức năng chính:**
+- **Raw Storage Access**: Đọc, ghi và xóa dữ liệu trực tiếp vào địa chỉ vật lý của thiết bị lưu trữ
+- **Device Information**: Cung cấp thông tin về thiết bị lưu trữ như kích thước, sector size, page size
+- **Storage Statistics**: Theo dõi số lượng operations và lỗi để phục vụ monitoring và debugging
+- **Technology Abstraction**: Trừu tượng hóa các công nghệ lưu trữ khác nhau (Flash, EEPROM, FRAM, Secure Element)
+- **Data Integrity**: Đảm bảo tính toàn vẹn dữ liệu thông qua các cơ chế flush và verification
+
+#### 2.1.3. Crypto HAL
+
+Crypto HAL cung cấp interface trừu tượng cho các crypto operations cơ bản, truy cập vào hardware cryptographic accelerators và secure elements.
+
+**Chức năng chính:**
+- **Cryptographic Primitives**: Cung cấp các operations cơ bản như encrypt, decrypt, sign, verify và hash
+- **Key Management**: Tạo, import, export và xóa cryptographic keys
+- **Random Number Generation**: Truy cập vào hardware random number generators
+- **Hardware Acceleration**: Tận dụng crypto accelerators khi có
+- **Secure Key Storage**: Lưu trữ keys an toàn trong secure elements hoặc hardware-protected memory
 
 ### 2.2. Platform Layer
 Platform Layer chứa các thành phần nền tảng:
