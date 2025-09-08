@@ -1,4 +1,4 @@
-## 1. Layered Architecture (Kiến trúc phân tầng mới)
+## 1. Layered Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
