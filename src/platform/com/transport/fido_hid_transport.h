@@ -58,6 +58,24 @@
 #define FIDO_MAX_CHANNELS           4       /**< Maximum concurrent channels */
 
 /**
+ * @brief FIDO HID configuration constants
+ */
+#define FIDO_HID_VENDOR_ID          0x1050  // Cần VID thật từ USB-IF
+#define FIDO_HID_PRODUCT_ID         0x0402  // Cần PID được cấp
+#define FIDO_HID_VERSION            0x0100  // Version 1.0
+#define FIDO_HID_USAGE_PAGE         0xF1D0  // FIDO Alliance
+#define FIDO_HID_USAGE              0x01    // U2F HID Authenticator
+#define FIDO_HID_ENDPOINT_IN        1       // IN endpoint
+#define FIDO_HID_ENDPOINT_OUT       1       // OUT endpoint
+#define FIDO_HID_PACKET_SIZE        64      // Fixed packet size
+#define FIDO_HID_POLL_INTERVAL      1       // 1ms polling
+
+// FIDO Alliance defined Usage values
+#define FIDO_USAGE_U2F_HID          0x01    // U2F HID Authenticator Device
+#define FIDO_USAGE_FIDO2_HID        0x01    // FIDO2 HID Authenticator (same as U2F)
+
+
+/**
  * @brief FIDO transport state enumeration
  */
 typedef enum {

@@ -8,6 +8,59 @@
 #include <stdlib.h>
 
 /**
+ * @brief FIDO HID Report Descriptor
+ * Based on FIDO Alliance U2F HID specification
+ */
+static const uint8_t fido_hid_report_descriptor[] = {
+    0x06, 0xD0, 0xF1,    // Usage Page (FIDO Alliance)
+    0x09, 0x01,          // Usage (U2F HID Authenticator Device)
+    0xA1, 0x01,          // Collection (Application)
+    
+    // Input Report (Host to Device)
+    0x09, 0x20,          //   Usage (Input Report Data)
+    0x15, 0x00,          //   Logical Minimum (0)
+    0x26, 0xFF, 0x00,    //   Logical Maximum (255)
+    0x75, 0x08,          //   Report Size (8 bits)
+    0x95, 0x40,          //   Report Count (64 bytes)
+    0x81, 0x02,          //   Input (Data, Variable, Absolute)
+    
+    // Output Report (Device to Host)  
+    0x09, 0x21,          //   Usage (Output Report Data)
+    0x15, 0x00,          //   Logical Minimum (0)
+    0x26, 0xFF, 0x00,    //   Logical Maximum (255)
+    0x75, 0x08,          //   Report Size (8 bits)
+    0x95, 0x40,          //   Report Count (64 bytes)
+    0x91, 0x02,          //   Output (Data, Variable, Absolute)
+    
+    0xC0                 // End Collection
+};
+
+/**
+ * @brief FIDO HID Descriptor Configuration
+ */
+const usb_hid_descriptor_t fido_hid_descriptor = {
+    .vendor_id = FIDO_HID_VENDOR_ID,           // Yubico VID (example - cần thay đổi)
+    .product_id = FIDO_HID_PRODUCT_ID,          // FIDO U2F Security Key
+    .version = FIDO_HID_VERSION,             // Version 1.0
+    .manufacturer = "USB Key Auth", // Manufacturer string
+    .product = "FIDO2 Authenticator", // Product string
+    .serial_number = "000001",      // Serial number
+    
+    // HID specific
+    .report_descriptor = fido_hid_report_descriptor,
+    .report_descriptor_length = sizeof(fido_hid_report_descriptor),
+    .endpoint_in = 1,              // IN endpoint (device to host)
+    .endpoint_out = 1,             // OUT endpoint (host to device)  
+    .max_packet_size = 64,         // FIDO HID packet size
+    .poll_interval = 1,            // 1ms polling interval
+    
+    // FIDO specific
+    .usage_page = FIDO_HID_USAGE_PAGE,          // FIDO Alliance Usage Page
+    .usage = FIDO_USAGE_FIDO2_HID,                 // U2F HID Usage
+    .report_count = 64,            // 64 bytes per report
+    .report_size = 8,              // 8 bits per byte
+};
+/**
  * @brief Channel information structure
  */
 typedef struct {
@@ -71,7 +124,12 @@ static hal_result_t fido_transport_init(const usb_hid_hal_t* usb_hal) {
     if (g_transport_ctx.initialized) {
         return HAL_ERROR_ALREADY_INITIALIZED;
     }
-    
+
+    // Configure HAL with FIDO HID descriptor
+    hal_result_t result = usb_hal->configure(&fido_hid_descriptor);
+    if (result != HAL_SUCCESS) {
+        return result;
+    }
     // Initialize context
     memset(&g_transport_ctx, 0, sizeof(g_transport_ctx));
     g_transport_ctx.usb_hal = usb_hal;
