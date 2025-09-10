@@ -1,0 +1,6 @@
+/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/clock_config.c:52:6:BOARD_InitBootClocks	8	static
+/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/clock_config.c:89:6:BOARD_BootClockFRO12M	24	static
+/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/clock_config.c:170:6:BOARD_BootClockFRO24M	24	static
+/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/clock_config.c:253:6:BOARD_BootClockFRO48M	24	static
+/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/clock_config.c:341:6:BOARD_BootClockFRO64M	24	static
+/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/clock_config.c:431:6:BOARD_BootClockFRO96M	24	static

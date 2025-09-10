@@ -1,0 +1,15 @@
+{
+  "version": "25.3",
+  "toolchainPath": "/home/haopc/.mcuxpressotools/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi",
+  "linkedProjects": [],
+  "trustZoneType": "none",
+  "multicoreType": "none",
+  "projectType": "sdk-freestanding",
+  "sdk": {
+    "version": "25.06.00",
+    "path": "/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/sdks/frdm_mcxa156_sdk",
+    "boardId": "frdmmcxa156",
+    "deviceId": "MCXA156",
+    "coreId": "cm33_core0_MCXA156"
+  }
+}
