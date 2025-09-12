@@ -28,7 +28,12 @@ typedef enum {
     HAL_ERROR_NOT_SUPPORTED = -5,       /**< Operation not supported */
     HAL_ERROR_HARDWARE_FAILURE = -6,    /**< Hardware malfunction detected */
     HAL_ERROR_INSUFFICIENT_MEMORY = -7, /**< Not enough memory available */
-    HAL_ERROR_INVALID_STATE = -8        /**< Invalid state for operation */
+    HAL_ERROR_INVALID_STATE = -8,       /**< Invalid state for operation */
+    HAL_ERROR_ALREADY_INITIALIZED = -9, /**< Module already initialized */
+    HAL_ERROR_RESOURCE_ALLOCATION = -10,/**< Resource allocation failed */
+    HAL_ERROR_RESOURCE_BUSY = -11,      /**< Resource is busy/unavailable */
+    HAL_ERROR_CANCELLED = -12,          /**< Operation was cancelled */
+    HAL_ERROR_UNKNOWN = -13             /**< Unknown error */
 } hal_result_t;
 
 /**

@@ -12,8 +12,8 @@
  * Handles message fragmentation, channel management, and FIDO HID protocol compliance.
  */
 
-#include "hal/interface/usb_hid_hal.h"
-#include "hal/interface/hal_common.h"
+#include "../../../hal/interface/usb_hid_hal.h"
+#include "../../../hal/interface/hal_common.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>

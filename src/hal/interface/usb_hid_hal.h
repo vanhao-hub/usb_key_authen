@@ -243,6 +243,19 @@ typedef struct {
     bool (*is_connected)(void);
     
     /**
+     * @brief Get USB device handle
+     * 
+     * Returns the underlying platform-specific USB device handle
+     * for use with platform USB tasks or direct USB operations.
+     * 
+     * @return Platform-specific USB device handle, or NULL if not available
+     * 
+     * @note Handle type depends on platform (e.g., usb_device_handle for NXP)
+     * @warning Direct use of this handle bypasses HAL abstraction
+     */
+    void* (*get_device_handle)(void);
+    
+    /**
      * @brief Get USB HID status
      * 
      * Retrieves current status flags of the USB HID device.

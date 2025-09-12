@@ -40,25 +40,15 @@ static const uint8_t fido_hid_report_descriptor[] = {
  */
 const usb_hid_descriptor_t fido_hid_descriptor = {
     .vendor_id = FIDO_HID_VENDOR_ID,           // Yubico VID (example - cần thay đổi)
-    .product_id = FIDO_HID_PRODUCT_ID,          // FIDO U2F Security Key
-    .version = FIDO_HID_VERSION,             // Version 1.0
-    .manufacturer = "USB Key Auth", // Manufacturer string
-    .product = "FIDO2 Authenticator", // Product string
-    .serial_number = "000001",      // Serial number
+    .product_id = FIDO_HID_PRODUCT_ID,         // FIDO U2F Security Key
+    .device_version = FIDO_HID_VERSION,        // Version 1.0
+    .manufacturer_string = "USB Key Auth",     // Manufacturer string
+    .product_string = "FIDO2 Authenticator",   // Product string
+    .serial_string = "000001",                 // Serial number
     
     // HID specific
     .report_descriptor = fido_hid_report_descriptor,
-    .report_descriptor_length = sizeof(fido_hid_report_descriptor),
-    .endpoint_in = 1,              // IN endpoint (device to host)
-    .endpoint_out = 1,             // OUT endpoint (host to device)  
-    .max_packet_size = 64,         // FIDO HID packet size
-    .poll_interval = 1,            // 1ms polling interval
-    
-    // FIDO specific
-    .usage_page = FIDO_HID_USAGE_PAGE,          // FIDO Alliance Usage Page
-    .usage = FIDO_USAGE_FIDO2_HID,                 // U2F HID Usage
-    .report_count = 64,            // 64 bytes per report
-    .report_size = 8,              // 8 bits per byte
+    .report_descriptor_size = sizeof(fido_hid_report_descriptor),
 };
 /**
  * @brief Channel information structure
@@ -137,9 +127,9 @@ static hal_result_t fido_transport_init(const usb_hid_hal_t* usb_hal) {
     g_transport_ctx.next_cid = 0x00010000; // Start after reserved range
     
     // Set USB callbacks
-    hal_result_t result = usb_hal->set_callbacks(usb_rx_callback, 
-                                                usb_tx_complete_callback,
-                                                usb_event_callback);
+    result = usb_hal->set_callbacks(usb_rx_callback, 
+                                   usb_tx_complete_callback,
+                                   usb_event_callback);
     if (result != HAL_SUCCESS) {
         return result;
     }

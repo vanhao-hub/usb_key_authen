@@ -1,0 +1,18 @@
+# USB HID Tester Dependencies
+
+# USB communication libraries
+pyusb>=1.2.1
+hidapi>=0.12.0
+
+# Data handling and utilities
+numpy>=1.21.0
+
+# Cryptography for FIDO2 testing (optional)
+cryptography>=3.4.8
+
+# Additional utilities
+python-dateutil>=2.8.2
+
+# Platform-specific dependencies
+# Linux udev support  
+pyudev>=0.23.2; sys_platform == "linux"

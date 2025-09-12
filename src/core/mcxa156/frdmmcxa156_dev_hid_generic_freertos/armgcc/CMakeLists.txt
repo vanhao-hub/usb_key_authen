@@ -56,10 +56,20 @@ add_executable(${MCUX_SDK_PROJECT_NAME}
 "${ProjDirPath}/../fsl_os_abstraction_config.h"
 "${ProjDirPath}/../mcux_config.h"
 "${ProjDirPath}/../usb_device_config.h"
+# HAL Manager
+"${ProjDirPath}/../../../../hal/hal_manager.c"
+# NXP USB HID HAL Implementation  
+"${ProjDirPath}/../../../../hal/nxp/usb_hid_hal_nxp.c"
+# FIDO HID Transport Layer
+"${ProjDirPath}/../../../../platform/com/transport/fido_hid_transport.c"
 )
 
 target_include_directories(${MCUX_SDK_PROJECT_NAME} PRIVATE
     ${ProjDirPath}/..
+    ${ProjDirPath}/../../../../hal/interface
+    ${ProjDirPath}/../../../../hal
+    ${ProjDirPath}/../../../../hal/nxp
+    ${ProjDirPath}/../../../../platform/com/transport
 )
 
 set_source_files_properties("${ProjDirPath}/../FreeRTOSConfig_Gen.h" PROPERTIES COMPONENT_CONFIG_FILE "middleware_freertos-kernel_config")
