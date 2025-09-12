@@ -1,0 +1,312 @@
+# USB Key Authentication Project - .gitignore
+# Generated on 2025-09-13
+
+#######################
+# CMake Build Artifacts
+#######################
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# CMake build directories
+build/
+Build/
+BUILD/
+debug/
+Debug/
+DEBUG/
+release/
+Release/
+RELEASE/
+
+# CMake API files
+.cmake/
+
+# Ninja build files
+.ninja_deps
+.ninja_log
+build.ninja
+
+# CMake temporary files
+*.tmp
+*.temp
+
+#######################
+# ARM/MCU Build Output
+#######################
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+*.su
+
+# Binary output files
+*.bin
+*.hex
+*.axf
+*.out
+
+# Linker output
+*.map
+output.map
+*.lst
+*.lss
+*.sym
+*.srec
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Debug files
+*.dSYM/
+*.idb
+*.pdb
+
+#######################
+# Python
+#######################
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+#######################
+# IDE/Editor specific
+#######################
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/
+
+# Visual Studio
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.vcxproj.user
+
+# Eclipse
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+.project
+.externalToolBuilders/
+*.launch
+.pydevproject
+.cproject
+.autotools
+.factorypath
+.buildpath
+.target
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+#######################
+# OS generated files
+#######################
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+#######################
+# Project specific
+#######################
+
+# USB HID Tester logs and config
+tools/usb_hid_tester/logs/
+tools/usb_hid_tester/config.json
+tools/usb_hid_tester/*.log
+
+# NXP MCU specific build artifacts
+**/armgcc/debug/
+**/armgcc/release/
+**/armgcc/**/*.obj
+**/armgcc/**/*.bin
+**/armgcc/**/*.elf
+**/armgcc/**/*.map
+
+# FreeRTOS logs
+FreeRTOS_*.log
+
+# Test results
+test_results/
+test_logs/
+*.test
+
+# Documentation build
+docs/build/
+docs/_build/
+
+#######################
+# Security/Credentials
+#######################
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Private keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Config files with secrets
+secrets.json
+credentials.json
+
+#######################
+# Logs and temporary files
+#######################
+
+# Log files
+*.log
+logs/
+log/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+
+# Archive files (unless specifically needed)
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip

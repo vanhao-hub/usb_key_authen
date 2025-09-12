@@ -1,3 +1,0 @@
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/armgcc/debug/CMakeFiles/dev_hid_generic_freertos.elf.dir
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/armgcc/debug/CMakeFiles/edit_cache.dir
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/armgcc/debug/CMakeFiles/rebuild_cache.dir

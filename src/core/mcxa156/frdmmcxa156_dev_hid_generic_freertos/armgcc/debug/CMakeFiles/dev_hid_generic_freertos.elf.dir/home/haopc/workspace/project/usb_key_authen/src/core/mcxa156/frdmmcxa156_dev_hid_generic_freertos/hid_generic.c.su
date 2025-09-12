@@ -1,5 +1,0 @@
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hid_generic.c:93:21:USB_DeviceHidGenericCallback	32	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hid_generic.c:140:21:USB_DeviceCallback	40	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hid_generic.c:357:13:USB_DeviceApplicationInit	8	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hid_generic.c:404:6:APP_task	16	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hid_generic.c:431:5:main	16	static

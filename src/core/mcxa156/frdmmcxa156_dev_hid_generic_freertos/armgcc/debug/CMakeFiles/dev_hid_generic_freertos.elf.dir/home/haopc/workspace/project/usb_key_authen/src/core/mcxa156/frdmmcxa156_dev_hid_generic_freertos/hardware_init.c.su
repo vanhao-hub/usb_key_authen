@@ -1,7 +1,0 @@
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/sdks/frdm_mcxa156_sdk/CMSIS/Core/Include/./core_cm33.h:2358:22:__NVIC_EnableIRQ	16	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/sdks/frdm_mcxa156_sdk/CMSIS/Core/Include/./core_cm33.h:2555:22:__NVIC_SetPriority	16	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/sdks/frdm_mcxa156_sdk/devices/MCXA156/drivers/./fsl_common_arm.h:672:24:EnableIRQ	24	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hardware_init.c:25:6:BOARD_InitHardware	8	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hardware_init.c:33:6:USB0_IRQHandler	8	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hardware_init.c:39:6:USB_DeviceClockInit	8	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/frdmmcxa156_dev_hid_generic_freertos/hardware_init.c:47:6:USB_DeviceIsrEnable	16	static

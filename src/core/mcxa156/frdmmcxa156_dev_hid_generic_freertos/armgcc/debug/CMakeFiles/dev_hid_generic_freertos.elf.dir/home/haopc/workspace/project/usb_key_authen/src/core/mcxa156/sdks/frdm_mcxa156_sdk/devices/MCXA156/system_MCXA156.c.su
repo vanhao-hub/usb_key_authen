@@ -1,3 +1,0 @@
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/sdks/frdm_mcxa156_sdk/devices/MCXA156/system_MCXA156.c:69:29:SystemInit	16	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/sdks/frdm_mcxa156_sdk/devices/MCXA156/system_MCXA156.c:145:6:SystemCoreClockUpdate	8	static
-/home/haopc/workspace/project/usb_key_authen/src/core/mcxa156/sdks/frdm_mcxa156_sdk/devices/MCXA156/system_MCXA156.c:156:29:SystemInitHook	4	static
