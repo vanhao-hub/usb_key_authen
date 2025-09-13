@@ -60,8 +60,8 @@
 /**
  * @brief FIDO HID configuration constants
  */
-#define FIDO_HID_VENDOR_ID          0x1050  // Cần VID thật từ USB-IF
-#define FIDO_HID_PRODUCT_ID         0x0402  // Cần PID được cấp
+#define FIDO_HID_VENDOR_ID          0x1FC9  // NXP Vendor ID 
+#define FIDO_HID_PRODUCT_ID         0x00C6  // NXP HID Generic Product ID
 #define FIDO_HID_VERSION            0x0100  // Version 1.0
 #define FIDO_HID_USAGE_PAGE         0xF1D0  // FIDO Alliance
 #define FIDO_HID_USAGE              0x01    // U2F HID Authenticator

@@ -29,6 +29,9 @@
 #include "../../hal/interface/usb_hid_hal.h"
 #include "../../hal/nxp/usb_hid_hal_nxp.h"
 
+// Platform includes for FIDO descriptor
+#include "../../platform/com/transport/fido_hid_transport.h"
+
 // FreeRTOS includes
 #include "FreeRTOS.h"
 #include "task.h"
@@ -55,7 +58,7 @@ void BOARD_InitHardware(void);
 extern void USB_DeviceTaskFn(void *deviceHandle);
 #endif
 
-// NOTE: USB callback functions have been moved to HAL layer (usb_hid_hal_nxp.c)
+// NOTE: USB callback functions are handled by HAL layer (usb_hid_hal_nxp.c)
 // Only application initialization remains here
 
 /*******************************************************************************
@@ -95,9 +98,20 @@ void APP_task(void *handle)
     // handle parameter is not used in our HAL implementation
     (void)handle;  // Suppress unused parameter warning
     
-    // Initialize HAL layer (which will call USB_DeviceApplicationInit internally)
+    // Get HAL instance first
     const usb_hid_hal_t* hal = usb_hid_hal_nxp_get_instance();
     
+    // Configure HAL with FIDO HID descriptor BEFORE initialization
+    extern const usb_hid_descriptor_t fido_hid_descriptor;
+    hal_result_t config_result = hal->configure(&fido_hid_descriptor);
+    if (config_result != HAL_SUCCESS) {
+        usb_echo("HAL configuration failed with error: %d\r\n", config_result);
+        return;
+    }
+    
+    usb_echo("USB HAL configured with FIDO2 descriptor successfully\r\n");
+    
+    // Initialize HAL layer AFTER configuration (which will call USB_DeviceApplicationInit internally)
     if (hal->base.init() != HAL_SUCCESS) {
         usb_echo("HAL initialization failed\r\n");
         return;

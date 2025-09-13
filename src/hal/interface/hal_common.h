@@ -33,6 +33,7 @@ typedef enum {
     HAL_ERROR_RESOURCE_ALLOCATION = -10,/**< Resource allocation failed */
     HAL_ERROR_RESOURCE_BUSY = -11,      /**< Resource is busy/unavailable */
     HAL_ERROR_CANCELLED = -12,          /**< Operation was cancelled */
+    HAL_ERROR_BUFFER_TOO_SMALL = -14,   /**< Buffer too small for operation */
     HAL_ERROR_UNKNOWN = -13             /**< Unknown error */
 } hal_result_t;
 

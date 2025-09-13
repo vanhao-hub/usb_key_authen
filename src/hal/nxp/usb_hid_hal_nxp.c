@@ -12,6 +12,7 @@
 #include "usb_hid_hal_nxp.h"
 #include "../interface/usb_hid_hal.h"
 #include "../interface/hal_common.h"
+#include <string.h>
 
 // NXP USB includes
 #include "usb_device_config.h"
@@ -24,6 +25,7 @@
 #include "hid_generic.h"
 #include "board.h"
 #include "clock_config.h"
+#include "fsl_debug_console.h"
 
 // FreeRTOS includes
 #include "FreeRTOS.h"
@@ -48,6 +50,16 @@ extern usb_status_t USB_DeviceGetDeviceDescriptor(usb_device_handle handle,
                                            usb_device_get_device_descriptor_struct_t *deviceDescriptor);
 extern usb_status_t USB_DeviceGetConfigurationDescriptor(
     usb_device_handle handle, usb_device_get_configuration_descriptor_struct_t *configurationDescriptor);
+
+// External descriptor arrays from usb_device_descriptor.c (needed for configuration)
+extern uint8_t g_UsbDeviceDescriptor[];
+extern uint8_t g_UsbDeviceConfigurationDescriptor[];
+extern uint8_t g_UsbDeviceHidGenericReportDescriptor[];
+extern uint8_t g_UsbDeviceString1[];
+extern uint8_t g_UsbDeviceString2[];
+extern uint8_t g_UsbDeviceString3[];
+extern uint32_t g_UsbDeviceStringDescriptorLength[];
+extern usb_device_endpoint_struct_t g_UsbDeviceHidGenericEndpoints[];
 extern usb_status_t USB_DeviceGetStringDescriptor(usb_device_handle handle,
                                            usb_device_get_string_descriptor_struct_t *stringDescriptor);
 extern usb_status_t USB_DeviceGetHidDescriptor(usb_device_handle handle,
@@ -177,11 +189,14 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
     uint8_t *temp8     = (uint8_t *)param;
     uint16_t *temp16   = (uint16_t *)param;
 
+    usb_echo("USB Event: %d\r\n", event);  // Log ALL events
+
     switch (event)
     {
         case kUSB_DeviceEventBusReset:
         {
             /* USB bus reset signal detected */
+            usb_echo("-> USB Bus Reset detected\r\n");
             g_UsbDeviceHidGeneric.attach               = 0U;
             g_UsbDeviceHidGeneric.currentConfiguration = 0U;
             error                                      = kStatus_USB_Success;
@@ -218,6 +233,7 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
         break;
 #endif
         case kUSB_DeviceEventSetConfiguration:
+            usb_echo("-> USB Set Configuration: %d\r\n", *temp8);
             if (0U == (*temp8))
             {
                 g_UsbDeviceHidGeneric.attach               = 0U;
@@ -227,6 +243,7 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
             else if (USB_HID_GENERIC_CONFIGURE_INDEX == (*temp8))
             {
                 /* Set device configuration request */
+                usb_echo("-> USB Configuration accepted, device attached\r\n");
                 g_UsbDeviceHidGeneric.attach               = 1U;
                 g_UsbDeviceHidGeneric.currentConfiguration = *temp8;
                 error =
@@ -236,10 +253,12 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
             }
             else
             {
+                usb_echo("-> Invalid configuration: %d\r\n", *temp8);
                 /* no action required, the default return value is kStatus_USB_InvalidRequest. */
             }
             break;
         case kUSB_DeviceEventSetInterface:
+            usb_echo("-> USB Set Interface\r\n");
             if (g_UsbDeviceHidGeneric.attach)
             {
                 /* Set device interface request */
@@ -278,6 +297,7 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
             }
             break;
         case kUSB_DeviceEventGetConfiguration:
+            usb_echo("-> USB Get Configuration\r\n");
             if (param)
             {
                 /* Get current configuration request */
@@ -286,6 +306,7 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
             }
             break;
         case kUSB_DeviceEventGetInterface:
+            usb_echo("-> USB Get Interface\r\n");
             if (param)
             {
                 /* Get current alternate setting of the interface request */
@@ -316,18 +337,24 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
             }
             break;
         case kUSB_DeviceEventGetDeviceDescriptor:
+            usb_echo("-> USB Get Device Descriptor request\r\n");
             if (param)
             {
                 /* Get device descriptor request */
                 error = USB_DeviceGetDeviceDescriptor(handle, (usb_device_get_device_descriptor_struct_t *)param);
+                usb_echo("-> Device Descriptor response: %s\r\n", 
+                         (error == kStatus_USB_Success) ? "SUCCESS" : "FAILED");
             }
             break;
         case kUSB_DeviceEventGetConfigurationDescriptor:
+            usb_echo("-> USB Get Configuration Descriptor request\r\n");
             if (param)
             {
                 /* Get device configuration descriptor request */
                 error = USB_DeviceGetConfigurationDescriptor(handle,
                                                              (usb_device_get_configuration_descriptor_struct_t *)param);
+                usb_echo("-> Configuration Descriptor response: %s\r\n", 
+                         (error == kStatus_USB_Success) ? "SUCCESS" : "FAILED");
             }
             break;
 #if (defined(USB_DEVICE_CONFIG_CV_TEST) && (USB_DEVICE_CONFIG_CV_TEST > 0U))
@@ -341,33 +368,46 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
             break;
 #endif
         case kUSB_DeviceEventGetStringDescriptor:
+            usb_echo("-> USB Get String Descriptor request: index %d\r\n", 
+                     ((usb_device_get_string_descriptor_struct_t *)param)->stringIndex);
             if (param)
             {
                 /* Get device string descriptor request */
                 error = USB_DeviceGetStringDescriptor(handle, (usb_device_get_string_descriptor_struct_t *)param);
+                usb_echo("-> String Descriptor response: %s\r\n", 
+                         (error == kStatus_USB_Success) ? "SUCCESS" : "FAILED");
             }
             break;
         case kUSB_DeviceEventGetHidDescriptor:
+            usb_echo("-> USB Get HID Descriptor request\r\n");
             if (param)
             {
                 /* Get hid descriptor request */
                 error = USB_DeviceGetHidDescriptor(handle, (usb_device_get_hid_descriptor_struct_t *)param);
+                usb_echo("-> HID Descriptor response: %s\r\n", 
+                         (error == kStatus_USB_Success) ? "SUCCESS" : "FAILED");
             }
             break;
         case kUSB_DeviceEventGetHidReportDescriptor:
+            usb_echo("-> USB Get HID Report Descriptor request\r\n");
             if (param)
             {
                 /* Get hid report descriptor request */
                 error =
                     USB_DeviceGetHidReportDescriptor(handle, (usb_device_get_hid_report_descriptor_struct_t *)param);
+                usb_echo("-> HID Report Descriptor response: %s\r\n", 
+                         (error == kStatus_USB_Success) ? "SUCCESS" : "FAILED");
             }
             break;
         case kUSB_DeviceEventGetHidPhysicalDescriptor:
+            usb_echo("-> USB Get HID Physical Descriptor request\r\n");
             if (param)
             {
                 /* Get hid physical descriptor request */
                 error = USB_DeviceGetHidPhysicalDescriptor(handle,
                                                            (usb_device_get_hid_physical_descriptor_struct_t *)param);
+                usb_echo("-> HID Physical Descriptor response: %s\r\n", 
+                         (error == kStatus_USB_Success) ? "SUCCESS" : "FAILED");
             }
             break;
 #if (defined(USB_DEVICE_CONFIG_ROOT2_TEST) && (USB_DEVICE_CONFIG_ROOT2_TEST > 0U))
@@ -382,6 +422,7 @@ static usb_status_t USB_DeviceCallback(usb_device_handle handle, uint32_t event,
 #endif
 #endif
         default:
+            usb_echo("-> USB Unknown Event: %d\r\n", event);
             break;
     }
 
@@ -522,8 +563,13 @@ static hal_result_t usb_hid_hal_nxp_init(void)
         return HAL_SUCCESS;
     }
     
-    // Initialize context
-    memset(&g_usb_hid_hal_nxp_ctx, 0, sizeof(g_usb_hid_hal_nxp_ctx));
+    // Check if configure has been called first
+    if (!g_usb_hid_hal_nxp_ctx.configured) {
+        return HAL_ERROR_INVALID_STATE; // Must call configure before init
+    }
+    
+    // Don't memset the context as it will clear configuration data
+    // Just initialize remaining fields
     
     // Create synchronization objects
     g_usb_hid_hal_nxp_ctx.tx_semaphore = xSemaphoreCreateBinary();
@@ -569,21 +615,263 @@ static hal_result_t usb_hid_hal_nxp_deinit(void)
 }
 
 /**
+ * @brief Helper function to convert ASCII string to UTF-16LE format
+ */
+static size_t ascii_to_utf16le(const char* ascii_str, uint8_t* utf16_buffer, size_t max_size)
+{
+    if (!ascii_str || !utf16_buffer || max_size < 4) {
+        return 0;
+    }
+    
+    size_t ascii_len = strlen(ascii_str);
+    size_t utf16_len = 2 + ascii_len * 2; // Length byte + descriptor type + 2 bytes per char
+    
+    // Debug log
+    usb_echo("String: '%s', ASCII len: %d, UTF16 len: %d, max_size: %d\r\n", 
+             ascii_str, ascii_len, utf16_len, max_size);
+    
+    if (utf16_len > max_size) {
+        usb_echo("Buffer too small: need %d, have %d\r\n", utf16_len, max_size);
+        return 0; // Not enough space
+    }
+    
+    // Length prefix (total bytes including header)
+    utf16_buffer[0] = (uint8_t)utf16_len;
+    // Descriptor type (STRING = 0x03)
+    utf16_buffer[1] = 0x03;
+    
+    // Convert ASCII to UTF-16LE
+    for (size_t i = 0; i < ascii_len; i++) {
+        utf16_buffer[2 + i * 2] = ascii_str[i];     // Low byte
+        utf16_buffer[2 + i * 2 + 1] = 0x00;        // High byte (0 for ASCII)
+    }
+    
+    return utf16_len;
+}
+
+/**
+ * @brief Replace string descriptor with new UTF-16LE string
+ */
+static hal_result_t replace_string_descriptor(uint8_t index, const char* new_string)
+{
+    if (!new_string) {
+        return HAL_ERROR_INVALID_PARAM;
+    }
+    
+    uint8_t* target_array = NULL;
+    size_t max_size = 0;
+    
+    // Determine target array and max size (using known buffer sizes from NXP)
+    switch (index) {
+        case 1: // Manufacturer string - hardcoded size from NXP (38 bytes)
+            target_array = g_UsbDeviceString1;
+            max_size = 38; // 2 + 2 * 18
+            break;
+        case 2: // Product string - hardcoded size from NXP (38 bytes)
+            target_array = g_UsbDeviceString2;
+            max_size = 38; // 2 + 2 * 18
+            break;
+        case 3: // Serial string - hardcoded size from NXP (34 bytes)
+            target_array = g_UsbDeviceString3;
+            max_size = 34; // 16 * 2 + 2
+            break;
+        default:
+            return HAL_ERROR_INVALID_PARAM;
+    }
+    
+    // Convert and copy new string
+    size_t new_length = ascii_to_utf16le(new_string, target_array, max_size);
+    if (new_length == 0) {
+        return HAL_ERROR_BUFFER_TOO_SMALL;
+    }
+    
+    // Update length array
+    g_UsbDeviceStringDescriptorLength[index] = new_length;
+    
+    return HAL_SUCCESS;
+}
+
+/**
+ * @brief Check if HID report descriptor requires 64-byte packets
+ */
+static bool requires_64_byte_packets(const usb_hid_descriptor_t* descriptor)
+{
+    if (!descriptor || !descriptor->report_descriptor) {
+        return false;
+    }
+    
+    const uint8_t* desc = descriptor->report_descriptor;
+    size_t size = descriptor->report_descriptor_size;
+    
+    // Look for Report Count (0x95) with value 0x40 (64 bytes)
+    for (size_t i = 0; i < size - 1; i++) {
+        if (desc[i] == 0x95 && desc[i + 1] == 0x40) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * @brief Update configuration descriptor packet sizes
+ */
+static hal_result_t update_configuration_descriptor_packet_sizes(uint16_t packet_size)
+{
+    // Configuration descriptor structure:
+    // Config header (9) + Interface (9) + HID (9) + IN Endpoint (7) + OUT Endpoint (7)
+    // IN endpoint packet size is at offset ~41-42
+    // OUT endpoint packet size is at offset ~48-49
+    
+    // Find endpoint descriptors in configuration descriptor
+    uint8_t* desc = g_UsbDeviceConfigurationDescriptor;
+    size_t offset = 9 + 9 + 9; // Skip config + interface + HID descriptors
+    
+    // First endpoint (IN) - packet size at offset+4 and offset+5
+    desc[offset + 4] = packet_size & 0xFF;         // Low byte
+    desc[offset + 5] = (packet_size >> 8) & 0xFF;  // High byte
+    
+    // Second endpoint (OUT) - packet size at offset+11 and offset+12
+    desc[offset + 11] = packet_size & 0xFF;        // Low byte  
+    desc[offset + 12] = (packet_size >> 8) & 0xFF; // High byte
+    
+    return HAL_SUCCESS;
+}
+
+/**
+ * @brief Update endpoint structures packet sizes
+ */
+static hal_result_t update_endpoint_structures_packet_sizes(uint16_t packet_size)
+{
+    // Update runtime endpoint structures
+    g_UsbDeviceHidGenericEndpoints[0].maxPacketSize = packet_size; // IN endpoint
+    g_UsbDeviceHidGenericEndpoints[1].maxPacketSize = packet_size; // OUT endpoint
+    
+    return HAL_SUCCESS;
+}
+
+/**
+ * @brief Replace HID report descriptor
+ */
+static hal_result_t replace_hid_report_descriptor(const uint8_t* new_descriptor, size_t new_size)
+{
+    if (!new_descriptor || new_size == 0) {
+        return HAL_ERROR_INVALID_PARAM;
+    }
+    
+    // The g_UsbDeviceHidGenericReportDescriptor array size is 25 bytes
+    // (defined in usb_device_descriptor.c lines 84-103)
+    // Cannot use sizeof() or USB_DESCRIPTOR_LENGTH_HID_GENERIC_REPORT macro
+    // because it's an external array declaration
+    const size_t existing_buffer_size = 25;
+    
+
+    // Clear old descriptor using correct buffer size
+    memset(g_UsbDeviceHidGenericReportDescriptor, 0, existing_buffer_size);
+    
+    // Copy new descriptor
+    memcpy(g_UsbDeviceHidGenericReportDescriptor, new_descriptor, new_size);
+    
+    // Note: USB_DESCRIPTOR_LENGTH_HID_GENERIC_REPORT is a macro that references
+    // sizeof(g_UsbDeviceHidGenericReportDescriptor), so it will automatically
+    // reflect the new size when the buffer is used.
+    
+    return HAL_SUCCESS;
+}
+
+/**
  * @brief Configure USB HID device
  */
 static hal_result_t usb_hid_hal_nxp_configure(const usb_hid_descriptor_t* descriptor)
 {
-    if (!g_usb_hid_hal_nxp_ctx.initialized) {
-        return HAL_ERROR_NOT_INITIALIZED;
-    }
+    // Configuration can happen before initialization
+    // Remove the initialized check since configure comes before init
     
     if (!descriptor) {
         return HAL_ERROR_INVALID_PARAM;
     }
     
-    // TODO: Update NXP descriptors with HAL descriptor data
-    // For now, using default NXP configuration
+    hal_result_t result;
     
+    // 1. Update Device Descriptor (g_UsbDeviceDescriptor) - VID/PID/Version
+    g_UsbDeviceDescriptor[8]  = (descriptor->vendor_id) & 0xFF;        // idVendor low
+    g_UsbDeviceDescriptor[9]  = (descriptor->vendor_id >> 8) & 0xFF;   // idVendor high
+    g_UsbDeviceDescriptor[10] = (descriptor->product_id) & 0xFF;       // idProduct low  
+    g_UsbDeviceDescriptor[11] = (descriptor->product_id >> 8) & 0xFF;  // idProduct high
+    g_UsbDeviceDescriptor[12] = (descriptor->device_version) & 0xFF;   // bcdDevice low
+    g_UsbDeviceDescriptor[13] = (descriptor->device_version >> 8) & 0xFF; // bcdDevice high
+    
+    // Debug: Print device descriptor after modification
+    usb_echo("Device Descriptor after config:\r\n");
+    usb_echo("VID: 0x%04X, PID: 0x%04X, Version: 0x%04X\r\n",
+             (g_UsbDeviceDescriptor[9] << 8) | g_UsbDeviceDescriptor[8],
+             (g_UsbDeviceDescriptor[11] << 8) | g_UsbDeviceDescriptor[10], 
+             (g_UsbDeviceDescriptor[13] << 8) | g_UsbDeviceDescriptor[12]);
+    
+    // Print full descriptor bytes for debugging
+    usb_echo("Full descriptor: ");
+    for (int i = 0; i < 18; i++) {
+        usb_echo("%02X ", g_UsbDeviceDescriptor[i]);
+    }
+    usb_echo("\r\n");
+    
+    // 2. Replace String Descriptors
+    if (descriptor->manufacturer_string) {
+        result = replace_string_descriptor(1, descriptor->manufacturer_string);
+        if (result != HAL_SUCCESS) {
+            // Debug: which string failed
+            usb_echo("Manufacturer string replacement failed: %d\r\n", result);
+            return result;
+        }
+    }
+    
+    if (descriptor->product_string) {
+        result = replace_string_descriptor(2, descriptor->product_string);
+        if (result != HAL_SUCCESS) {
+            usb_echo("Product string replacement failed: %d\r\n", result);
+            return result;
+        }
+    }
+    
+    if (descriptor->serial_string) {
+        result = replace_string_descriptor(3, descriptor->serial_string);
+        if (result != HAL_SUCCESS) {
+            usb_echo("Serial string replacement failed: %d\r\n", result);
+            return result;
+        }
+    }
+    
+    // 3. Replace HID Report Descriptor
+    if (descriptor->report_descriptor && descriptor->report_descriptor_size > 0) {
+        result = replace_hid_report_descriptor(descriptor->report_descriptor, 
+                                             descriptor->report_descriptor_size);
+        if (result != HAL_SUCCESS) {
+            usb_echo("HID descriptor replacement failed: %d\r\n", result);
+            return result;
+        }
+    }
+    
+    // 4. Check if 64-byte packets are required and update packet sizes
+    if (requires_64_byte_packets(descriptor)) {
+        // Update configuration descriptor packet sizes
+        result = update_configuration_descriptor_packet_sizes(64);
+        if (result != HAL_SUCCESS) {
+            usb_echo("Config descriptor update failed: %d\r\n", result);
+            return result;
+        }
+        
+        // Update endpoint structures packet sizes
+        result = update_endpoint_structures_packet_sizes(64);
+        if (result != HAL_SUCCESS) {
+            usb_echo("Endpoint structures update failed: %d\r\n", result);
+            return result;
+        }
+    }
+    
+    // Mark that configuration has been done
+    g_usb_hid_hal_nxp_ctx.configured = true;
+    
+    usb_echo("HAL configuration completed successfully\r\n");
     return HAL_SUCCESS;
 }
 

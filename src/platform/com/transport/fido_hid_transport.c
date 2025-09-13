@@ -42,9 +42,9 @@ const usb_hid_descriptor_t fido_hid_descriptor = {
     .vendor_id = FIDO_HID_VENDOR_ID,           // Yubico VID (example - cần thay đổi)
     .product_id = FIDO_HID_PRODUCT_ID,         // FIDO U2F Security Key
     .device_version = FIDO_HID_VERSION,        // Version 1.0
-    .manufacturer_string = "USB Key Auth",     // Manufacturer string
-    .product_string = "FIDO2 Authenticator",   // Product string
-    .serial_string = "000001",                 // Serial number
+    .manufacturer_string = "USB Key Auth",     // Manufacturer string (12 chars = 26 bytes)
+    .product_string = "FIDO2 Security Key",    // Product string (18 chars = 38 bytes) 
+    .serial_string = "000001",                 // Serial number (6 chars = 14 bytes)
     
     // HID specific
     .report_descriptor = fido_hid_report_descriptor,
